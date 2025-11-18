@@ -122,8 +122,6 @@ def carregar_recursos(tamanho_celula, largura, altura):
     recursos = {
         'personagem1': carregar_imagem("imagens/usuario1.png", tamanho_celula),
         'personagem2': carregar_imagem("imagens/usuario2.png", tamanho_celula),
-        'personagem1_dano': carregar_imagem("imagens/usuario1_dano.png", tamanho_celula),
-        'personagem2_dano': carregar_imagem("imagens/usuario2_dano.png", tamanho_celula),
         'destino': carregar_imagem("imagens/casa.png", tamanho_celula)
     }
     
@@ -156,14 +154,8 @@ def desenhar_mensagem_executando(tela, largura, altura, usuario, cor):
                cv2.FONT_HERSHEY_SIMPLEX, 2.5, cor, 6)
 
 
-def desenhar_cenario(tela, agua, destino, destino_img, tamanho_celula):
-    """Desenha água e destino no cenário."""
-    # Desenha água
-    for (ax, ay) in agua:
-        cv2.rectangle(tela, (ax * tamanho_celula, ay * tamanho_celula),
-                     ((ax + 1) * tamanho_celula, (ay + 1) * tamanho_celula),
-                     (255, 100, 100), -1)
-    
+def desenhar_cenario(tela, destino, destino_img, tamanho_celula):
+    """Desenha destino no cenário."""
     # Desenha destino (apenas a imagem, sem quadrado amarelo)
     if destino_img is not None:
         dx, dy = destino
@@ -202,7 +194,6 @@ def main():
     recursos = carregar_recursos(TAMANHO_CELULA, LARGURA, ALTURA)
     
     # Configuração do cenário
-    agua = [(2, 5), (3, 5), (4, 5)]
     destino = (grid_cols - 1, 0)
     
     # Posições iniciais
@@ -217,8 +208,6 @@ def main():
         'executando_j1': False,
         'executando_j2': False,
         'jogo_ativo': True,
-        'morreu1': False,
-        'morreu2': False,
         'vencedor': None
     }
     
@@ -235,7 +224,10 @@ def main():
     
     print("\n✓ Iniciando jogo...")
     print("✓ Pressione 'q' para sair\n")
+    
+    # Cria janela maximizada
     cv2.namedWindow("Jogo por QR Code - 2 Jogadores", cv2.WINDOW_NORMAL)
+    cv2.setWindowProperty("Jogo por QR Code - 2 Jogadores", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
     while True:
         ret, frame = cap.read()
@@ -315,21 +307,13 @@ def main():
             desenhar_mensagem_executando(tela, LARGURA, ALTURA, "2", (0, 100, 255))
 
         # Cenário
-        desenhar_cenario(tela, agua, destino, recursos['destino'], TAMANHO_CELULA)
+        desenhar_cenario(tela, destino, recursos['destino'], TAMANHO_CELULA)
         
         # Personagens
-        if tuple(pos1) in agua:
-            estado['morreu1'] = True
-        if tuple(pos2) in agua:
-            estado['morreu2'] = True
-        
-        img1 = recursos['personagem1_dano'] if estado['morreu1'] else recursos['personagem1']
-        img2 = recursos['personagem2_dano'] if estado['morreu2'] else recursos['personagem2']
-        
-        overlay_image(tela, img1, pos1[0] * TAMANHO_CELULA, pos1[1] * TAMANHO_CELULA)
-        overlay_image(tela, img2, pos2[0] * TAMANHO_CELULA, pos2[1] * TAMANHO_CELULA)
+        overlay_image(tela, recursos['personagem1'], pos1[0] * TAMANHO_CELULA, pos1[1] * TAMANHO_CELULA)
+        overlay_image(tela, recursos['personagem2'], pos2[0] * TAMANHO_CELULA, pos2[1] * TAMANHO_CELULA)
 
-        # Vitória/Morte
+        # Vitória
         if estado['jogo_ativo']:
             if tuple(pos1) == destino:
                 estado['jogo_ativo'], estado['vencedor'] = False, "Jogador 1"
@@ -339,13 +323,6 @@ def main():
         if estado['vencedor']:
             cv2.putText(tela, f"{estado['vencedor']} venceu!", (300, 480), 
                        cv2.FONT_HERSHEY_SIMPLEX, 3.0, (0, 150, 0), 6)
-        
-        if (estado['morreu1'] or estado['morreu2']) and estado['jogo_ativo']:
-            estado['jogo_ativo'] = False
-            msg = "Ambos morreram!" if estado['morreu1'] and estado['morreu2'] else \
-                  f"Jogador {'1' if estado['morreu1'] else '2'} morreu!"
-            cv2.putText(tela, msg, (260 if "Jogador" in msg else 300, 480), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 3.0, (0, 0, 255), 6)
 
         # Preview da câmera
         preview = cv2.resize(frame_invertido, (PREVIEW_CONFIG['largura'], PREVIEW_CONFIG['altura']))
