@@ -92,6 +92,7 @@ Desenvolvido como parte do curso de Tópicos Especiais em Sistemas Computacionai
 
 https://opengameart.org/content/mustached-gentleman-game-character-sprites
 https://opengameart.org/content/big-eyes-boy-game-character-sprites
+https://opengameart.org/content/house-sets
 
 ---
 

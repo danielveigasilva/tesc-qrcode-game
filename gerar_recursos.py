@@ -107,7 +107,7 @@ def criar_pdf_jogador(jogador_num):
             c.drawImage(qr_path, x, y, width=qr_size, height=qr_size, preserveAspectRatio=True, mask='auto')
             
             c.setFont("Helvetica-Bold", 18)
-            c.drawCentredString(x + qr_size/2, y - 0.8*cm, comando.upper())
+            c.drawCentredString(x + qr_size/2, y - 0.8*cm, f"{comando.upper()} - Jogador {jogador_num}")
     
     # Rodapé página 1
     c.setFont("Helvetica-Oblique", 10)
@@ -148,7 +148,7 @@ def criar_pdf_jogador(jogador_num):
             c.drawImage(qr_path, x, y, width=qr_size_grande, height=qr_size_grande, preserveAspectRatio=True, mask='auto')
             
             c.setFont("Helvetica-Bold", 24)
-            c.drawCentredString(largura/2, y - 1*cm, comando.upper())
+            c.drawCentredString(largura/2, y - 1*cm, f"{comando.upper()} - Jogador {jogador_num}")
     
     # Rodapé página 2
     c.setFont("Helvetica-Oblique", 10)
